@@ -2,7 +2,6 @@
 	import SearchForm from '$lib/components/searchForm.svelte';
 	import WeatherDisplay from '$lib/components/weatherDisplay.svelte';
 	import type { WeatherData } from '$lib/wheatherData';
-	import { onMount } from 'svelte';
 
 	let { city, weatherData } = $state<{
 		city: string;
@@ -17,13 +16,18 @@
 	async function fetchWeather(cityName: string): Promise<void> {
 		try {
 			const response = await fetch(`/api/weather?city=${cityName}`);
+
+			if (response.statusText === 'Not Found') {
+				throw new Error(`${cityName} not found`);
+			}
+
 			if (!response.ok) {
 				throw new Error('Failed to fetch weather data');
 			}
 			weatherData = await response.json();
 			error = '';
-		} catch (err) {
-			error = 'Error fetching weather data. Please try again.';
+		} catch (err: any) {
+			error = err.message;
 			weatherData = null;
 		}
 	}
@@ -33,7 +37,7 @@
 		fetchWeather(city);
 	}
 
-	onMount(() => {
+	$effect(() => {
 		if (navigator.geolocation) {
 			navigator.geolocation.getCurrentPosition(
 				async (position: GeolocationPosition) => {
@@ -55,7 +59,7 @@
 </script>
 
 <main>
-	<h1>Weather App</h1>
+	<h1>Bad Weather App</h1>
 	<SearchForm on:search={handleSearch} />
 	{#if error}
 		<p class="error">{error}</p>
