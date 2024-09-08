@@ -4,9 +4,7 @@
 
 	let { weatherData }: { weatherData: WeatherData } = $props();
 
-	let { temperatureUnit } = $state<{ temperatureUnit: 'celsius' | 'fahrenheit' }>({
-		temperatureUnit: 'celsius'
-	});
+	let temperatureUnit: 'celsius' | 'fahrenheit' = $state('celsius');
 
 	$effect(() => {
 		console.log('Weather data updated:', weatherData);

@@ -2,7 +2,7 @@
 	import { createEventDispatcher } from 'svelte';
 
 	const dispatch = createEventDispatcher<{ search: string }>();
-	let searchTerm = $state<string>('');
+	let searchTerm: string = $state('');
 
 	function handleSubmit(event: Event): void {
 		event.preventDefault();
