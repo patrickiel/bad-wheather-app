@@ -25,7 +25,19 @@ export const GET: RequestHandler = async ({ url }) => {
     } else if (lat && lon) {
         apiUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto`;
 
-        name = 'Unknown location [lat: ' + lat + ', lon: ' + lon + ']';
+        const nominatimUrl = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=10&addressdetails=1`;
+        try {
+            const nominatimResponse = await fetch(nominatimUrl);
+            const nominatimData = await nominatimResponse.json();
+            if (nominatimData.name) {
+                name = nominatimData.name;
+            } else {
+                name = `Unknown location [lat: ${lat}, lon: ${lon}]`;
+            }
+        } catch (error) {
+            console.error('Error fetching location name:', error);
+            name = `Unknown location [lat: ${lat}, lon: ${lon}]`;
+        }
 
     } else {
         return json({ error: 'Invalid parameters' }, { status: 400 });
@@ -34,6 +46,7 @@ export const GET: RequestHandler = async ({ url }) => {
     try {
         const response = await fetch(apiUrl);
         const data: WeatherData = await response.json();
+
 
         // Add city name to the response
         if (name) {
